@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F4C5C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="الأقساط">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>نظام الأقساط</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1B2A2F;--teal:#0F4C5C;--paper:#F4F7F6;--card:#fff;--line:#DDE5E3;--muted:#62757A;
+--paid:#2A9D8F;--part:#E9C46A;--late:#C0392B;--up:#D5DEDC;--gold:#E9C46A}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:"Readex Pro",Tahoma,"Segoe UI",sans-serif;background:var(--paper);color:var(--ink);font-size:15px}
+header{background:var(--teal);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 14px;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:19px;font-weight:700}
+header small{opacity:.75;font-size:12px}
+main{padding:14px 12px calc(90px + env(safe-area-inset-bottom,0px));max-width:720px;margin:auto}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px);z-index:6}
+nav button{flex:1;border:0;background:none;padding:9px 0 8px;font:inherit;font-size:11px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button svg{width:22px;height:22px}
+nav button.on{color:var(--teal);font-weight:700}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border-radius:14px;padding:12px;border:1px solid var(--line)}
+.stat b{display:block;font-size:18px;margin-top:4px}
+.stat span{font-size:12px;color:var(--muted)}
+.stat.alert b{color:var(--late)}
+h2{font-size:16px;margin:18px 4px 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.sub{color:var(--muted);font-size:12.5px}
+.strip{display:flex;gap:3px;margin:10px 0 6px}
+.strip i{flex:1;height:12px;border-radius:3px;background:var(--up)}
+.strip i.p{background:var(--paid)}.strip i.h{background:var(--part)}.strip i.l{background:var(--late)}
+.money{font-weight:700;white-space:nowrap}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;background:#E6F1EF;color:var(--teal);white-space:nowrap}
+.tag.late,.tag.r4,.tag.blk{background:#FBE9E7;color:var(--late)}.tag.done,.tag.r1{background:#E7F5EE;color:#1E7F55}
+.tag.r2{background:#E6F1EF;color:var(--teal)}.tag.r3{background:#FDF3DC;color:#9A6B00}
+.btn{border:0;border-radius:11px;padding:11px 14px;font:inherit;font-weight:500;background:var(--teal);color:#fff;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.sec{background:#E6F1EF;color:var(--teal)}.btn.wa{background:#1FA855}.btn.del{background:#FBE9E7;color:var(--late)}
+.btn.sm{padding:7px 11px;font-size:13px;border-radius:9px}
+.btn.full{width:100%;margin-top:8px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fab{position:fixed;left:18px;bottom:calc(76px + env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:50%;background:var(--gold);color:var(--ink);border:0;font-size:30px;box-shadow:0 4px 12px rgba(15,76,92,.3);z-index:6}
+input,select,textarea{width:100%;font:inherit;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input[type=checkbox]{width:auto}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 2px 4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.inrow{display:flex;gap:6px}.inrow input{flex:1}
+.search{margin-bottom:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;font:inherit;font-size:13px;color:var(--ink)}
+.chip.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.sheet-bg{position:fixed;inset:0;background:rgba(27,42,47,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--paper);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 14px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin:0 0 6px;font-size:17px}
+.summary{background:var(--teal);color:#fff;border-radius:14px;padding:12px;margin-top:12px}
+.summary .row{padding:3px 0}.summary b{font-size:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right}
+th{color:var(--muted);font-weight:500}
+.photos{display:flex;gap:8px;flex-wrap:wrap}
+.ph{width:92px;height:64px;border:1px dashed var(--muted);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);overflow:hidden;position:relative;text-align:center}
+.ph img{width:100%;height:100%;object-fit:cover}
+.ph input{position:absolute;inset:0;opacity:0}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.warn{background:#FBE9E7;color:var(--late);border-radius:10px;padding:10px;margin-top:10px;font-size:13.5px}
+.banner{background:#FDF3DC;border:1px solid #F1D48A;border-radius:14px;padding:12px;margin-bottom:12px;font-size:14px}
+.toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 70px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;z-index:90;font-size:14px;max-width:90%;text-align:center}
+.menu .card{display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+/* القفل */
+#lock{position:fixed;inset:0;background:var(--teal);z-index:80;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:env(safe-area-inset-top,0px) 20px env(safe-area-inset-bottom,0px)}
+#lock h2{margin:0 0 6px}
+.dots{display:flex;gap:14px;margin:18px 0 26px}.dots i{width:14px;height:14px;border-radius:50%;border:2px solid #fff}.dots i.f{background:#fff}
+.dots.shake{animation:sh .35s}@keyframes sh{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.pad{display:grid;grid-template-columns:repeat(3,72px);gap:14px}
+.pad button{height:72px;border-radius:50%;border:0;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:26px}
+.pad button.t{background:none;font-size:14px}
+/* الماسح */
+#scan{position:fixed;inset:0;background:#000;z-index:70;display:flex;flex-direction:column;justify-content:center;padding:env(safe-area-inset-top,0px) 10px env(safe-area-inset-bottom,0px)}
+#reader{width:100%;max-width:520px;margin:auto}
+#print{display:none}
+@media print{@page{margin:10mm}body>*:not(#print){display:none!important}#print{display:block!important}}
+.rc{max-width:380px;margin:auto;padding:14px;border:2px solid #000;font-size:14px;color:#000}
+.rc h2,.a4 h1{text-align:center;margin:0 0 4px}.c{text-align:center}.rc hr,.a4 hr{border:0;border-top:1px dashed #000}
+.rc .row,.a4 .row{padding:3px 0}
+.a4{color:#000;font-size:13.5px}.a4 h1{font-size:22px}.a4 table{margin:8px 0}.a4 td,.a4 th{border:1px solid #000;padding:5px;text-align:center}
+.a4 .box{border:1px solid #000;padding:8px;margin:8px 0}.a4 .sig{display:flex;justify-content:space-around;margin-top:40px}
+.a4 pre{font-family:inherit;white-space:pre-wrap;margin:0}
+</style>
+</head>
+<body>
+<header><h1>نظام الأقساط</h1><small id="shopname"></small></header>
+<main id="app"></main>
+<button class="fab" id="fab">+</button>
+<nav id="nav"></nav>
+<div id="print"></div>
+<script>
+// ================== التخزين ==================
+let db,S,L;
+const TERMS='1. يلتزم المشتري بتسديد الأقساط في مواعيدها المحددة أعلاه.\n2. يقر المشتري باستلام الجهاز سليماً وخالياً من العيوب.\n3. في حال التأخر عن تسديد قسطين متتاليين يحق للبائع المطالبة بكامل المبلغ المتبقي.\n4. لا يحق للمشتري بيع الجهاز أو رهنه قبل تسديد كامل المبلغ.';
+const EMPTY=()=>({customers:[],devices:[],contracts:[],payments:[],deleted:[],
+ settings:{shop:'',phone:'',address:'',rateBase:'remaining',round:250,remindDays:3,terms:TERMS,
+ waRemind:'السلام عليكم {الاسم}، نذكركم بموعد قسط جهاز {الجهاز} بتاريخ {التاريخ} بمبلغ {المبلغ} دينار. المسدد: {المسدد} - الباقي: {الباقي}. {المحل}',
+ waLate:'السلام عليكم {الاسم}، عليكم قسط متأخر بمبلغ {المتأخر} دينار لجهاز {الجهاز}. الباقي الكلي: {الباقي} دينار. نرجو المراجعة. {المحل}'}});
+// إعدادات خاصة بهذا التلفون فقط (ما تنصدر بالنسخة)
+const LOCAL=()=>({pinHash:'',bioId:'',lastBackup:0,waMode:'link',umInstance:'',umToken:'',autoSend:false,autoReceipt:false,lastAuto:'',sent:{}});
+function idb(){return new Promise((ok,no)=>{const r=indexedDB.open('aqsat',1);
+ r.onupgradeneeded=()=>{r.result.createObjectStore('kv');r.result.createObjectStore('img')};
+ r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+function tx(store,mode,fn){return new Promise((ok,no)=>{const t=db.transaction(store,mode);const r=fn(t.objectStore(store));
+ t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error)})}
+const save=()=>tx('kv','readwrite',s=>s.put(S,'state'));
+const saveL=()=>tx('kv','readwrite',s=>s.put(L,'local'));
+const imgPut=(id,v)=>tx('img','readwrite',s=>s.put(v,id));
+const imgGet=id=>id?tx('img','readonly',s=>s.get(id)):Promise.resolve(null);
+const imgDel=id=>id?tx('img','readwrite',s=>s.delete(id)):Promise.resolve();
+
+// ================== أدوات ==================
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const fmt=n=>Math.round(Number(n)||0).toLocaleString('en-US');
+const num=v=>Number(String(v||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^\d.]/g,''))||0;
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function addMonths(d,n){const [y,m,day]=d.split('-').map(Number);const t=new Date(Date.UTC(y,m-1+n,1));
+ const last=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();t.setUTCDate(Math.min(day,last));return t.toISOString().slice(0,10)}
+const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+function normPhone(p){p=String(p||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g,'');if(p.startsWith('00'))p=p.slice(2);
+ if(p.startsWith('0'))p='964'+p.slice(1);else if(p.length===10&&p.startsWith('7'))p='964'+p;return p}
+const byId=(t,id)=>S[t].find(x=>x.id===id);
+function toast(m,ms){const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.append(d);setTimeout(()=>d.remove(),ms||2300)}
+function touch(o){o.updated=Date.now();return o}
+function remove(t,id){S[t]=S[t].filter(x=>x.id!==id);S.deleted.push({t,id,at:Date.now()})}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const cno=c=>c.id.slice(-6).toUpperCase();
+
+// ================== الحسابات ==================
+// الفائدة على الباقي بعد المقدمة أو على السعر الكامل. القسط مقرّب لتحت والفرق ويا أول قسط
+function calcContract(price,rate,down,months,base,round){
+ price=num(price);rate=num(rate);down=num(down);months=Math.max(1,parseInt(months)||1);round=round||250;
+ let interest=base==='full'?price*rate/100:Math.max(0,price-down)*rate/100;
+ let total=Math.ceil((price+interest)/round)*round;interest=total-price;
+ const fin=Math.max(0,total-down);
+ let monthly=Math.floor(fin/months/round)*round;if(!monthly)monthly=Math.floor(fin/months);
+ return{price,rate,down,months,total,interest,fin,monthly,first:fin-monthly*(months-1)}}
+const shiftOf=(c,i)=>(c.shifts||[]).filter(s=>s.from<=i).reduce((a,s)=>a+s.n,0);
+function schedule(c){const out=[];for(let i=1;i<=c.months;i++)
+ out.push({i,due:addMonths(c.start,i+shiftOf(c,i)),amount:i===1?c.fin-c.monthly*(c.months-1):c.monthly});return out}
+function info(c){
+ const pays=S.payments.filter(p=>p.contract===c.id).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.created||0)-(b.created||0));
+ const cash=pays.reduce((a,p)=>a+p.amount,0),disc=pays.reduce((a,p)=>a+(p.discount||0),0),paid=cash+disc;
+ const t=today(),sch=schedule(c),delays=[];let left=paid,dueSum=0,lateCount=0,cum=0,pc=0,pi=0;
+ sch.forEach(s=>{s.paid=Math.min(s.amount,Math.max(0,left));left-=s.amount;cum+=s.amount;
+  while(pi<pays.length&&pc<cum){pc+=pays[pi].amount+(pays[pi].discount||0);pi++}
+  s.paidDate=pc>=cum&&pi>0?pays[pi-1].date:null;
+  s.st=s.paid>=s.amount?'p':s.due<t?'l':s.paid>0?'h':'u';
+  if(s.due<t){dueSum+=s.amount;if(s.st==='l')lateCount++}
+  if(s.paidDate)delays.push(Math.max(0,daysBetween(s.due,s.paidDate)));else if(s.due<t)delays.push(daysBetween(s.due,t))});
+ const remaining=Math.max(0,c.fin-paid);
+ return{pays,paid,cash,disc,paidAll:paid+c.down,remaining,sch,late:Math.max(0,dueSum-paid),lateCount,next:sch.find(s=>s.st!=='p'),done:remaining<=0,delays}}
+// تقييم الزبون حسب معدل أيام التأخير
+function rating(cid){const d=S.contracts.filter(c=>c.customer===cid).flatMap(c=>info(c).delays);
+ if(!d.length)return{k:0,n:'جديد',avg:0};const avg=d.reduce((a,x)=>a+x,0)/d.length,max=Math.max(...d);
+ const k=avg<=3?1:avg<=15?2:avg<=45?3:4;return{k,n:['','ملتزم','جيد','يتأخر','متعثر'][k],avg:Math.round(avg),max,count:d.length}}
+const rtag=r=>r.k?`<span class="tag r${r.k}">${r.n}</span>`:'';
+
+// ================== الواجهة ==================
+const IC={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ doc:'<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7M9 8h3"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+ box:'<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>',
+ bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+ more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'};
+const TABS=[['home','الرئيسية','home'],['contracts','العقود','doc'],['remind','التذكيرات','bell'],['customers','الزبائن','user'],['stock','المخزن','box'],['more','المزيد','more']];
+let tab='home',filter='all',q='';
+function renderNav(){document.getElementById('nav').innerHTML=TABS.map(([k,n,i])=>
+ `<button class="${tab===k?'on':''}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">${IC[i]}</svg>${n}</button>`).join('')}
+function go(t){tab=t;q='';filter='all';render();scrollTo(0,0)}
+function render(){renderNav();document.getElementById('shopname').textContent=S.settings.shop||'';
+ const fab=document.getElementById('fab');fab.style.display=['contracts','customers','stock','home'].includes(tab)?'':'none';
+ fab.onclick=tab==='customers'?()=>customerForm():tab==='stock'?()=>deviceForm():()=>contractForm();
+ document.getElementById('app').innerHTML=VIEWS[tab]()}
+function reList(){const d=document.createElement('div');d.innerHTML=VIEWS[tab]();document.getElementById('list').innerHTML=d.querySelector('#list').innerHTML}
+const strip=ci=>`<div class="strip">${ci.sch.map(s=>`<i class="${s.st==='u'?'':s.st}"></i>`).join('')}</div>`;
+function contractCard(c){const ci=info(c),cu=byId('customers',c.customer)||{};
+ const tag=ci.done?'<span class="tag done">مكتمل</span>':ci.late>0?`<span class="tag late">متأخر ${fmt(ci.late)}</span>`:'<span class="tag">نشط</span>';
+ return `<div class="card" onclick="contractView('${c.id}')"><div class="row"><b>${esc(cu.name)}</b>${tag}</div>
+ <div class="sub">${esc(c.device)} ${c.imei?'• IMEI '+esc(c.imei):''}</div>${strip(ci)}
+ <div class="row sub"><span>مسدد ${fmt(ci.paidAll)} من ${fmt(c.total)}</span><span class="money" style="color:var(--ink)">الباقي ${fmt(ci.remaining)}</span></div>
+ ${ci.next&&!ci.done?`<div class="sub">القسط القادم: ${ci.next.due} (${fmt(ci.next.amount-ci.next.paid)})</div>`:''}</div>`}
+
+const VIEWS={
+home(){const act=S.contracts.map(c=>[c,info(c)]);const t=today(),m=t.slice(0,7);
+ const rec=act.reduce((a,[,i])=>a+i.remaining,0),late=act.reduce((a,[,i])=>a+i.late,0);
+ const coll=S.payments.filter(p=>p.date.startsWith(m)).reduce((a,p)=>a+p.amount,0)+S.contracts.filter(c=>c.start.startsWith(m)).reduce((a,c)=>a+c.down,0);
+ const profit=act.reduce((a,[c,i])=>a+c.total-(c.cost||0)-i.disc,0);
+ const lateL=act.filter(([,i])=>i.late>0).sort((a,b)=>b[1].late-a[1].late).slice(0,5);
+ const soon=act.filter(([,i])=>!i.done&&!i.late&&i.next&&daysBetween(t,i.next.due)<=7).slice(0,5);
+ const needBk=S.contracts.length&&(!L.lastBackup||Date.now()-L.lastBackup>7*864e5);
+ return `${needBk?`<div class="banner">${L.lastBackup?'آخر نسخة احتياطية قبل '+Math.floor((Date.now()-L.lastBackup)/864e5)+' يوم.':'ما مسوّي نسخة احتياطية بعد.'} البيانات بس على هذا التلفون، صدّر نسخة واحفظها.
+ <button class="btn sm full" onclick="exportData()">صدّر نسخة هسه</button></div>`:''}
+ <div class="stats"><div class="stat"><span>عقود نشطة</span><b>${act.filter(([,i])=>!i.done).length}</b></div>
+ <div class="stat"><span>الديون عند الزبائن</span><b>${fmt(rec)}</b></div>
+ <div class="stat alert"><span>أقساط متأخرة</span><b>${fmt(late)}</b></div>
+ <div class="stat"><span>المستلم هذا الشهر</span><b>${fmt(coll)}</b></div>
+ <div class="stat"><span>أجهزة بالمخزن</span><b>${S.devices.filter(d=>d.status!=='sold').length}</b></div>
+ <div class="stat"><span>ربح العقود الكلي</span><b>${fmt(profit)}</b></div></div>
+ <h2>المتأخرين</h2>${lateL.length?lateL.map(([c])=>contractCard(c)).join(''):'<div class="card sub">ماكو متأخرين</div>'}
+ <h2>أقساط هذا الأسبوع</h2>${soon.length?soon.map(([c])=>contractCard(c)).join(''):'<div class="card sub">ماكو أقساط خلال ٧ أيام</div>'}`},
+contracts(){let L2=S.contracts.map(c=>[c,info(c)]);
+ if(filter==='active')L2=L2.filter(([,i])=>!i.done);if(filter==='late')L2=L2.filter(([,i])=>i.late>0);if(filter==='done')L2=L2.filter(([,i])=>i.done);
+ if(q){const s=q.toLowerCase();L2=L2.filter(([c])=>{const cu=byId('customers',c.customer)||{};return (cu.name+' '+cu.phone+' '+c.device+' '+c.imei+' '+cno(c)).toLowerCase().includes(s)})}
+ L2.sort((a,b)=>b[0].created-a[0].created);
+ return `<input class="search" placeholder="بحث بالاسم، الرقم، الجهاز، IMEI أو رقم العقد" value="${esc(q)}" oninput="q=this.value;reList()">
+ <div class="chips">${[['all','الكل'],['active','نشطة'],['late','متأخرة'],['done','مكتملة']].map(([k,n])=>`<button class="chip ${filter===k?'on':''}" onclick="filter='${k}';render()">${n}</button>`).join('')}</div>
+ <div id="list">${L2.length?L2.map(([c])=>contractCard(c)).join(''):'<div class="empty">ماكو عقود. اضغط + حتى تسوي عقد جديد.</div>'}</div>`},
+remind(){const {late,soon}=dueLists();const api=L.waMode==='api';
+ const item=([c,i],kind)=>{const cu=byId('customers',c.customer)||{};const k=sentKey(c,i,kind);
+ return `<div class="card"><div class="row"><b>${esc(cu.name)}</b><span class="sub">${L.sent[k]?'✓ انرسل '+L.sent[k]:esc(cu.phone)}</span></div>
+ <div class="sub">${esc(c.device)} • ${kind==='late'?`متأخر ${fmt(i.late)} (${i.lateCount} قسط)`:`موعد القسط ${i.next.due} بمبلغ ${fmt(i.next.amount-i.next.paid)}`}</div>
+ <div class="btns"><button class="btn wa sm" onclick="sendWA('${c.id}','${kind}')">إرسال واتساب</button><button class="btn sec sm" onclick="contractView('${c.id}')">فتح العقد</button></div></div>`};
+ return `<div class="card sub">${api?'الإرسال من داخل النظام شغال (UltraMsg). تكدر ترسل للكل بضغطة.':'الرسالة تنفتح بالواتساب جاهزة وتدوس إرسال. حتى ترسل من داخل النظام للكل بضغطة، فعّل بوابة الواتساب من المزيد.'}</div>
+ ${api&&(late.length+soon.length)?`<button class="btn wa full" onclick="bulkSend()">إرسال للكل (${late.length+soon.length})</button>`:''}
+ <h2>متأخرين (${late.length})</h2>${late.map(x=>item(x,'late')).join('')||'<div class="card sub">ماكو</div>'}
+ <h2>قسطهم قريب (${soon.length})</h2>${soon.map(x=>item(x,'soon')).join('')||'<div class="card sub">ماكو</div>'}`},
+customers(){let L2=[...S.customers].sort((a,b)=>a.name.localeCompare(b.name,'ar'));
+ if(q)L2=L2.filter(c=>(c.name+' '+c.phone).includes(q));
+ return `<input class="search" placeholder="بحث بالاسم أو الرقم" value="${esc(q)}" oninput="q=this.value;reList()"><div id="list">
+ ${L2.map(c=>{const cs=S.contracts.filter(x=>x.customer===c.id);const rem=cs.reduce((a,x)=>a+info(x).remaining,0);
+ return `<div class="card" onclick="customerView('${c.id}')"><div class="row"><b>${esc(c.name)}</b><span>${c.blocked?'<span class="tag blk">قائمة سوداء</span>':rtag(rating(c.id))}</span></div>
+ <div class="row sub"><span>${esc(c.phone)} • ${cs.length} عقد</span><span class="money" style="color:var(--ink)">${rem?fmt(rem):''}</span></div></div>`}).join('')||'<div class="empty">ماكو زبائن. اضغط + وضيف أول زبون.</div>'}</div>`},
+stock(){let L2=S.devices.filter(d=>filter==='sold'?d.status==='sold':d.status!=='sold');
+ if(q)L2=L2.filter(d=>(d.cat+d.brand+d.model+d.imei).toLowerCase().includes(q.toLowerCase()));
+ return `<input class="search" placeholder="بحث بالموديل أو IMEI" value="${esc(q)}" oninput="q=this.value;reList()">
+ <div class="chips"><button class="chip ${filter!=='sold'?'on':''}" onclick="filter='in';render()">بالمخزن</button><button class="chip ${filter==='sold'?'on':''}" onclick="filter='sold';render()">مباعة</button></div>
+ <div id="list">${L2.map(d=>`<div class="card" onclick="deviceForm('${d.id}')"><div class="row"><b>${esc(d.brand)} ${esc(d.model)}</b><span class="money">${fmt(d.price)}</span></div>
+ <div class="sub">${esc(d.cat)} ${d.imei?'• IMEI '+esc(d.imei):''} • الكلفة ${fmt(d.cost)}</div></div>`).join('')||'<div class="empty">ماكو أجهزة هنا. اضغط + وضيف جهاز.</div>'}</div>`},
+more(){const it=(f,t,s)=>`<div class="card" onclick="${f}"><div><b>${t}</b><div class="sub">${s}</div></div><span>‹</span></div>`;
+ return `<div class="menu">${it('reportForm()','التقرير الشهري','المبيعات والمستلم والربح لكل شهر')}
+ ${it('rankView()','ترتيب الزبائن','الملتزمين والمتأخرين حسب تاريخ تسديدهم')}
+ ${it('settingsForm()','معلومات المحل والرسائل','الاسم، الفائدة، نص الرسائل وبنود العقد')}
+ ${it('waForm()','بوابة الواتساب','إرسال من داخل النظام وإرسال تلقائي')}
+ ${it('lockForm()','قفل التطبيق',L.pinHash?'مفعّل'+(L.bioId?' + بصمة/وجه':''):'غير مفعّل')}
+ ${it('backupForm()','النسخة الاحتياطية',L.lastBackup?'آخر نسخة: '+new Date(L.lastBackup).toLocaleDateString('en-GB'):'ما مسوّي نسخة بعد')}</div>`}};
+
+// ================== النوافذ ==================
+function sheet(html){closeSheet();const b=document.createElement('div');b.className='sheet-bg';b.id='sheet';
+ b.innerHTML=`<div class="sheet">${html}</div>`;b.onclick=e=>{if(e.target===b)closeSheet()};document.body.append(b)}
+function closeSheet(){document.getElementById('sheet')?.remove()}
+const v=id=>document.getElementById(id)?.value.trim()||'';
+const scanBtn=id=>`<div class="inrow"><input id="${id}" inputmode="numeric"><button class="btn sec sm" type="button" onclick="scan('${id}')">مسح</button></div>`;
+
+// ---------- صور ----------
+function compress(file){return new Promise(ok=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+ const k=Math.min(1,1200/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;
+ c.getContext('2d').drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.72))};im.src=r.result};r.readAsDataURL(file)})}
+const pending={};
+function photoBox(key,label,imgId){setTimeout(async()=>{const d=await imgGet(imgId);const el=document.getElementById('ph_'+key);if(d&&el)el.innerHTML=`<img src="${d}">`},0);
+ return `<div class="ph"><span id="ph_${key}">${label}</span><input type="file" accept="image/*" onchange="pickPhoto(this,'${key}')"></div>`}
+async function pickPhoto(inp,key){const f=inp.files[0];if(!f)return;const d=await compress(f);pending[key]=d;document.getElementById('ph_'+key).innerHTML=`<img src="${d}">`}
+async function showImg(id,back){const d=await imgGet(id);if(d)sheet(`<img src="${d}" style="width:100%;border-radius:10px"><div class="btns"><button class="btn sec" onclick="${back}">رجوع</button></div>`)}
+
+// ---------- ماسح IMEI ----------
+let scanner=null;
+function loadScript(src){return new Promise((ok,no)=>{if(window.Html5Qrcode)return ok();const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.append(s)})}
+async function scan(target){const o=document.createElement('div');o.id='scan';
+ o.innerHTML=`<div id="reader"></div><p class="c" style="color:#fff">وجّه الكاميرا على باركود IMEI بكرتونة الجهاز</p><button class="btn del" style="margin:8px auto" onclick="stopScan()">إلغاء</button>`;document.body.append(o);
+ try{await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js');
+  scanner=new Html5Qrcode('reader');
+  await scanner.start({facingMode:'environment'},{fps:10,qrbox:(w)=>({width:Math.min(w*.9,340),height:130})},txt=>{
+   const m=txt.replace(/\s/g,'').match(/\d{15}/);document.getElementById(target).value=m?m[0]:txt;stopScan();toast(m?'انقرأ الـ IMEI':'انقرأ الباركود، تأكد من الرقم')},()=>{});
+ }catch(e){stopScan();toast('ما اشتغلت الكاميرا. اسمح للتطبيق يستخدم الكاميرا، أو اكتب الرقم يدوياً',3500)}}
+async function stopScan(){try{if(scanner){await scanner.stop();scanner.clear()}}catch(e){}scanner=null;document.getElementById('scan')?.remove()}
+
+// ---------- الزبائن ----------
+function customerForm(id){const c=id?byId('customers',id):{};Object.keys(pending).forEach(k=>delete pending[k]);
+ sheet(`<h3>${id?'تعديل زبون':'زبون جديد'}</h3>
+ <label>الاسم الكامل</label><input id="c_name" value="${esc(c.name)}"><div class="grid2"><div><label>الهاتف</label><input id="c_phone" inputmode="tel" value="${esc(c.phone)}"></div>
+ <div><label>المهنة/العمل</label><input id="c_job" value="${esc(c.job)}"></div></div><label>العنوان</label><input id="c_addr" value="${esc(c.address)}">
+ <label>صور الهوية</label><div class="photos">${photoBox('idF','وجه الهوية',c.idF)}${photoBox('idB','ظهر الهوية',c.idB)}</div>
+ <label>ملاحظات</label><textarea id="c_notes" rows="2">${esc(c.notes)}</textarea>
+ <label style="display:flex;gap:8px;align-items:center;color:var(--late)"><input type="checkbox" id="c_blk" ${c.blocked?'checked':''}> قائمة سوداء (ما ينطي عقد جديد)</label>
+ <input id="c_blkr" placeholder="السبب" value="${esc(c.blockReason)}">
+ <div class="btns"><button class="btn" onclick="saveCustomer('${id||''}')">حفظ</button><button class="btn sec" onclick="${id?`customerView('${id}')`:'closeSheet()'}">إلغاء</button></div>`)}
+async function saveCustomer(id){if(!v('c_name'))return toast('اكتب اسم الزبون');const ph=v('c_phone');
+ if(ph&&S.customers.some(x=>x.id!==id&&normPhone(x.phone)===normPhone(ph))&&!confirm('هذا الرقم مسجل لزبون ثاني. تكمل؟'))return;
+ const c=id?byId('customers',id):{id:uid(),created:Date.now()};
+ Object.assign(c,{name:v('c_name'),phone:ph,job:v('c_job'),address:v('c_addr'),notes:v('c_notes'),blocked:document.getElementById('c_blk').checked,blockReason:v('c_blkr')});
+ for(const k of ['idF','idB'])if(pending[k]){await imgDel(c[k]);c[k]=uid();await imgPut(c[k],pending[k])}
+ touch(c);if(!id)S.customers.push(c);await save();toast('انحفظ الزبون');render();customerView(c.id)}
+function customerView(id){const c=byId('customers',id);const cs=S.contracts.filter(x=>x.customer===id);const r=rating(id);
+ sheet(`<div class="row"><h3>${esc(c.name)}</h3>${c.blocked?'<span class="tag blk">قائمة سوداء</span>':rtag(r)}</div>
+ <div class="sub">${esc(c.phone)} ${c.job?'• '+esc(c.job):''} ${c.address?'• '+esc(c.address):''}</div>
+ ${c.blocked?`<div class="warn">قائمة سوداء${c.blockReason?': '+esc(c.blockReason):''}</div>`:''}
+ ${r.k?`<div class="sub" style="margin-top:6px">معدل التأخير ${r.avg} يوم، وأكثر تأخير ${r.max} يوم (${r.count} قسط)</div>`:''}
+ ${c.notes?`<div class="sub">${esc(c.notes)}</div>`:''}
+ <div class="btns">${c.idF?`<button class="btn sec sm" onclick="showImg('${c.idF}','customerView(\\'${id}\\')')">وجه الهوية</button>`:''}${c.idB?`<button class="btn sec sm" onclick="showImg('${c.idB}','customerView(\\'${id}\\')')">ظهر الهوية</button>`:''}</div>
+ <h2>العقود</h2>${cs.map(contractCard).join('')||'<div class="sub">ماكو عقود</div>'}
+ <div class="btns"><button class="btn" onclick="contractForm(null,'${id}')">عقد جديد</button>
+ ${cs.length?`<button class="btn wa" onclick="statementWA('${id}')">كشف حساب واتساب</button>`:''}
+ ${c.phone?`<a class="btn sec" href="tel:${esc(c.phone)}">اتصال</a>`:''}
+ <button class="btn sec" onclick="customerForm('${id}')">تعديل</button><button class="btn del" onclick="delCustomer('${id}')">حذف</button></div>`)}
+async function delCustomer(id){if(S.contracts.some(c=>c.customer===id))return toast('الزبون عنده عقود، احذف عقوده أول');
+ if(!confirm('تأكيد حذف الزبون؟'))return;const c=byId('customers',id);await imgDel(c.idF);await imgDel(c.idB);
+ remove('customers',id);await save();closeSheet();toast('انحذف الزبون');render()}
+
+// ---------- المخزن ----------
+function deviceForm(id){const d=id?byId('devices',id):{cat:'موبايل'};
+ sheet(`<h3>${id?'تعديل جهاز':'جهاز جديد للمخزن'}</h3>
+ <label>النوع</label><select id="d_cat">${['موبايل','تابلت','لابتوب','تلفزيون','ثلاجة','غسالة','مكيف','مجمدة','طباخ','أخرى'].map(x=>`<option ${d.cat===x?'selected':''}>${x}</option>`).join('')}</select>
+ <div class="grid2"><div><label>الشركة</label><input id="d_brand" value="${esc(d.brand)}" placeholder="Samsung"></div><div><label>الموديل</label><input id="d_model" value="${esc(d.model)}" placeholder="A55 256GB"></div></div>
+ <label>IMEI / الرقم التسلسلي</label>${scanBtn('d_imei')}
+ <div class="grid2"><div><label>سعر الشراء (الكلفة)</label><input id="d_cost" inputmode="numeric" value="${d.cost||''}"></div><div><label>سعر البيع نقداً</label><input id="d_price" inputmode="numeric" value="${d.price||''}"></div></div>
+ ${d.status==='sold'?'<div class="sub" style="margin-top:8px">هذا الجهاز مباع بعقد. تعديله ما يغيّر حسابات العقد.</div>':''}
+ <div class="btns"><button class="btn" onclick="saveDevice('${id||''}')">حفظ</button><button class="btn sec" onclick="closeSheet()">إلغاء</button>
+ ${id?`<button class="btn del" onclick="delDevice('${id}')">حذف</button>`:''}</div>`);
+ document.getElementById('d_imei').value=d.imei||''}
+async function saveDevice(id){if(!v('d_model'))return toast('اكتب الموديل');const imei=v('d_imei');
+ if(imei&&S.devices.some(x=>x.imei===imei&&x.id!==id))return toast('هذا الـ IMEI مسجل من قبل');
+ const d=id?byId('devices',id):{id:uid(),status:'stock',created:Date.now()};
+ Object.assign(d,{cat:v('d_cat'),brand:v('d_brand'),model:v('d_model'),imei,cost:num(v('d_cost')),price:num(v('d_price'))});
+ touch(d);if(!id)S.devices.push(d);await save();closeSheet();toast('انحفظ الجهاز');render()}
+async function delDevice(id){const d=byId('devices',id);
+ if(d.status==='sold'&&S.contracts.some(c=>c.deviceId===id))return toast('الجهاز مربوط بعقد، احذف العقد أول');
+ if(!confirm('حذف الجهاز؟'))return;remove('devices',id);await save();closeSheet();toast('انحذف الجهاز');render()}
+
+// ---------- العقد ----------
+function contractForm(editId,custId){if(!S.customers.length){toast('ضيف زبون أول');return customerForm()}
+ const c=editId?byId('contracts',editId):null;
+ const st=S.devices.filter(d=>d.status!=='sold'||(c&&d.id===c.deviceId));
+ const rate=c?c.rate:25,mon=c?c.months:10;custId=c?c.customer:custId;
+ sheet(`<h3>${c?'تعديل العقد':'عقد تقسيط جديد'}</h3>
+ <label>الزبون</label><select id="k_cust" onchange="custWarn()">${[...S.customers].sort((a,b)=>a.name.localeCompare(b.name,'ar')).map(x=>`<option value="${x.id}" ${x.id===custId?'selected':''}>${x.blocked?'⛔ ':''}${esc(x.name)} - ${esc(x.phone)}</option>`).join('')}</select>
+ <div id="k_warn"></div>
+ <label>الجهاز من المخزن</label><select id="k_dev" onchange="pickDev()"><option value="">— جهاز خارج المخزن (اكتبه يدوياً) —</option>
+ ${st.map(d=>`<option value="${d.id}" ${c&&c.deviceId===d.id?'selected':''}>${esc(d.brand)} ${esc(d.model)} ${d.imei?'• '+esc(d.imei):''}</option>`).join('')}</select>
+ <label>وصف الجهاز</label><input id="k_desc" value="${esc(c?.device)}"><label>IMEI</label>${scanBtn('k_imei')}
+ <div class="grid2"><div><label>سعر الجهاز (نقدي)</label><input id="k_price" inputmode="numeric" value="${c?c.price:''}" oninput="calc()"></div><div><label>الكلفة عليك</label><input id="k_cost" inputmode="numeric" value="${c?c.cost||'':''}"></div></div>
+ <label>نسبة الفائدة %</label><div class="chips" id="rates">${[15,20,25,30,35,40].map(r=>`<button class="chip ${r==rate?'on':''}" onclick="setRate(${r})">${r}%</button>`).join('')}</div>
+ <input id="k_rate" inputmode="decimal" value="${rate}" oninput="calc();markChips('rates',this.value)">
+ <label>المقدمة (اختياري — اتركها فارغة إذا بدون مقدمة)</label><input id="k_down" inputmode="numeric" placeholder="بدون مقدمة" value="${c&&c.down?c.down:''}" oninput="calc()">
+ <label>عدد الأشهر</label><div class="chips" id="mons">${[3,4,5,6,8,10,12,18,24].map(m=>`<button class="chip ${m==mon?'on':''}" onclick="setMon(${m})">${m}</button>`).join('')}</div>
+ <input id="k_months" type="number" value="${mon}" oninput="calc();markChips('mons',this.value)">
+ <label>تاريخ العقد (أول قسط بعد شهر منه)</label><input id="k_start" type="date" value="${c?c.start:today()}">
+ <label>ملاحظات</label><input id="k_notes" value="${esc(c?.notes)}">
+ <div class="summary" id="k_sum"></div>
+ <div class="btns"><button class="btn" onclick="saveContract('${editId||''}')">${c?'حفظ التعديل':'حفظ العقد'}</button><button class="btn sec" onclick="${c?`contractView('${c.id}')`:'closeSheet()'}">إلغاء</button></div>`);
+ document.getElementById('k_imei').value=c?.imei||'';calc();custWarn()}
+function custWarn(){const cu=byId('customers',v('k_cust'));const el=document.getElementById('k_warn');if(!cu||!el)return;const r=rating(cu.id);
+ const late=S.contracts.filter(x=>x.customer===cu.id).map(info).reduce((a,i)=>a+i.late,0);
+ el.innerHTML=cu.blocked?`<div class="warn">⛔ هذا الزبون بالقائمة السوداء${cu.blockReason?': '+esc(cu.blockReason):''}</div>`:
+ late?`<div class="warn">عليه أقساط متأخرة بمبلغ ${fmt(late)} بعقود ثانية</div>`:r.k>=3?`<div class="warn">تقييمه "${r.n}" — معدل تأخيره ${r.avg} يوم</div>`:''}
+function markChips(g,val){document.querySelectorAll('#'+g+' .chip').forEach(b=>b.classList.toggle('on',parseFloat(b.textContent)==parseFloat(val)))}
+function setRate(r){document.getElementById('k_rate').value=r;markChips('rates',r);calc()}
+function setMon(m){document.getElementById('k_months').value=m;markChips('mons',m);calc()}
+function pickDev(){const d=byId('devices',v('k_dev'));if(!d)return;
+ document.getElementById('k_desc').value=`${d.cat} ${d.brand} ${d.model}`.trim();document.getElementById('k_imei').value=d.imei||'';
+ document.getElementById('k_price').value=d.price||'';document.getElementById('k_cost').value=d.cost||'';calc()}
+function calc(){const s=S.settings;const r=calcContract(v('k_price'),v('k_rate'),v('k_down'),v('k_months'),s.rateBase,s.round);
+ document.getElementById('k_sum').innerHTML=`<div class="row"><span>سعر الجهاز</span><span>${fmt(r.price)}</span></div>
+ <div class="row"><span>الفائدة ${r.rate}%</span><span>+ ${fmt(r.interest)}</span></div>
+ <div class="row"><span>المبلغ الكامل بالتقسيط</span><b>${fmt(r.total)}</b></div>
+ ${r.down?`<div class="row"><span>المقدمة</span><span>− ${fmt(r.down)}</span></div>`:'<div class="row"><span>بدون مقدمة</span><span></span></div>'}
+ <div class="row"><span>الباقي على ${r.months} شهر</span><span>${fmt(r.fin)}</span></div>
+ ${r.first!==r.monthly?`<div class="row"><span>القسط الأول (ويا الفرق)</span><b>${fmt(r.first)}</b></div>`:''}
+ <div class="row"><span>القسط الشهري${r.first!==r.monthly?' (الباقي)':''}</span><b>${fmt(r.monthly)}</b></div>`;return r}
+async function saveContract(editId){const r=calc();if(!r.price)return toast('اكتب سعر الجهاز');if(!v('k_desc'))return toast('اكتب وصف الجهاز');
+ if(r.down&&r.down>=r.total)return toast('المقدمة أكبر من المبلغ');
+ const cu=byId('customers',v('k_cust'));if(cu.blocked&&!confirm('الزبون بالقائمة السوداء. تكمل العقد؟'))return;
+ const old=editId?byId('contracts',editId):null;
+ if(old){const paid=info(old).paid;if(paid>r.fin)return toast('المسدد ('+fmt(paid)+') أكثر من المبلغ الجديد')}
+ const devId=v('k_dev')||null;
+ const c=old||{id:uid(),created:Date.now(),shifts:[]};
+ if(old&&old.deviceId&&old.deviceId!==devId){const d=byId('devices',old.deviceId);if(d){d.status='stock';touch(d)}}
+ Object.assign(c,{customer:cu.id,deviceId:devId,device:v('k_desc'),imei:v('k_imei'),cost:num(v('k_cost')),price:r.price,rate:r.rate,interest:r.interest,
+  total:r.total,down:r.down,fin:r.fin,months:r.months,monthly:r.monthly,start:v('k_start')||today(),notes:v('k_notes')});touch(c);
+ if(!old)S.contracts.push(c);if(devId){const d=byId('devices',devId);d.status='sold';touch(d)}
+ await save();toast(old?'انحفظ التعديل':'انحفظ العقد');if(!old){tab='contracts'}render();contractView(c.id)}
+function contractView(id){const c=byId('contracts',id),ci=info(c),cu=byId('customers',c.customer)||{};
+ const nm={p:'مسدد',h:'جزئي',l:'متأخر',u:'—'};
+ sheet(`<div class="row"><h3>${esc(cu.name)}</h3><span class="sub">عقد ${cno(c)} • ${c.start}</span></div><div class="sub">${esc(c.device)} ${c.imei?'• IMEI '+esc(c.imei):''}</div>
+ ${strip(ci)}
+ <div class="summary"><div class="row"><span>المبلغ الكامل (مع فائدة ${c.rate}%)</span><b>${fmt(c.total)}</b></div>
+ <div class="row"><span>المسدد${c.down?` (مع المقدمة ${fmt(c.down)})`:''}</span><b>${fmt(ci.paidAll)}</b></div>
+ ${ci.disc?`<div class="row"><span>خصم تسديد مبكر</span><span>${fmt(ci.disc)}</span></div>`:''}
+ <div class="row"><span>الباقي</span><b style="color:var(--gold)">${fmt(ci.remaining)}</b></div>
+ ${ci.late?`<div class="row"><span>متأخر</span><b>${fmt(ci.late)}</b></div>`:''}
+ ${ci.sch[0].amount!==c.monthly?`<div class="row"><span>القسط الأول</span><span>${fmt(ci.sch[0].amount)}</span></div>`:''}
+ <div class="row"><span>القسط الشهري × ${c.months}</span><span>${fmt(c.monthly)}</span></div></div>
+ <div class="btns">${ci.done?'':`<button class="btn" onclick="payForm('${id}')">تسديد قسط</button><button class="btn sec" onclick="earlyForm('${id}')">تسديد كامل مبكر</button><button class="btn sec" onclick="postponeForm('${id}')">تأجيل قسط</button>`}
+ <button class="btn wa" onclick="sendWA('${id}','${ci.late?'late':'soon'}')">واتساب للزبون</button>
+ <button class="btn sec" onclick="printContract('${id}')">طباعة العقد</button>
+ <button class="btn sec" onclick="customerView('${c.customer}')">ملف الزبون</button></div>
+ ${(c.shifts||[]).length?`<h2>التأجيلات</h2>${c.shifts.map((s,k)=>`<div class="card row"><span>من القسط ${s.from}: ${s.n} شهر ${s.note?'— '+esc(s.note):''}</span><button class="btn del sm" onclick="delShift('${id}',${k})">إلغاء</button></div>`).join('')}`:''}
+ <h2>جدول الأقساط</h2><table><tr><th>#</th><th>الموعد</th><th>القسط</th><th>المسدد</th><th>الحالة</th></tr>
+ ${ci.sch.map(s=>`<tr><td>${s.i}</td><td>${s.due}</td><td>${fmt(s.amount)}</td><td>${fmt(s.paid)}</td><td style="color:${s.st==='l'?'var(--late)':s.st==='p'?'var(--paid)':'inherit'}">${nm[s.st]}</td></tr>`).join('')}</table>
+ <h2>التسديدات</h2>${ci.pays.map(p=>`<div class="card"><div class="row"><b>${fmt(p.amount)}${p.discount?` <span class="sub">+ خصم ${fmt(p.discount)}</span>`:''}</b><span class="sub">${p.date} • وصل <bdi>${p.no}</bdi></span></div>
+ ${p.note?`<div class="sub">${esc(p.note)}</div>`:''}<div class="btns"><button class="btn sec sm" onclick="receipt('${p.id}')">الوصل</button><button class="btn sec sm" onclick="payForm('${id}','${p.id}')">تعديل</button><button class="btn del sm" onclick="delPay('${p.id}')">حذف</button></div></div>`).join('')||'<div class="sub">ماكو تسديدات بعد</div>'}
+ <div class="btns"><button class="btn sec" onclick="contractForm('${id}')">تعديل العقد</button><button class="btn del" onclick="delContract('${id}')">حذف العقد</button></div>`)}
+function payForm(id,pid){const c=byId('contracts',id),ci=info(c);const p=pid?byId('payments',pid):null;
+ const paidOther=ci.paid-(p?p.amount+(p.discount||0):0);const due=ci.late||(ci.next?ci.next.amount-ci.next.paid:0);
+ sheet(`<h3>${p?'تعديل التسديد':'تسديد قسط'}</h3><div class="sub">الباقي على العقد: ${fmt(c.fin-paidOther)}</div>
+ <label>المبلغ</label><input id="p_amt" inputmode="numeric" value="${p?p.amount:Math.min(due,ci.remaining)}" oninput="payPrev(${paidOther},${c.fin},${c.down})">
+ ${p&&p.discount?`<label>الخصم</label><input id="p_disc" inputmode="numeric" value="${p.discount}" oninput="payPrev(${paidOther},${c.fin},${c.down})">`:''}
+ <label>التاريخ</label><input id="p_date" type="date" value="${p?p.date:today()}"><label>ملاحظة</label><input id="p_note" value="${esc(p?.note)}">
+ <div class="summary" id="p_sum"></div>
+ <div class="btns"><button class="btn" onclick="savePay('${id}','${pid||''}')">حفظ التسديد</button><button class="btn sec" onclick="contractView('${id}')">رجوع</button></div>`);payPrev(paidOther,c.fin,c.down)}
+function payPrev(paid,fin,down){const a=num(v('p_amt'))+num(v('p_disc'));document.getElementById('p_sum').innerHTML=
+ `<div class="row"><span>المسدد بعد هذا التسديد</span><b>${fmt(paid+a+down)}</b></div><div class="row"><span>الباقي بعده</span><b style="color:var(--gold)">${fmt(Math.max(0,fin-paid-a))}</b></div>`}
+function recNo(){const d=new Date(),p=n=>String(n).padStart(2,'0');return String(d.getFullYear()).slice(2)+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())}
+async function savePay(id,pid,extra){const c=byId('contracts',id),ci=info(c);const old=pid?byId('payments',pid):null;
+ const a=extra?extra.amount:num(v('p_amt')),disc=extra?extra.discount:(old&&old.discount?num(v('p_disc')):0);if(!a&&!disc)return toast('اكتب المبلغ');
+ const avail=ci.remaining+(old?old.amount+(old.discount||0):0);if(a+disc>avail)return toast('المبلغ أكثر من الباقي ('+fmt(avail)+')');
+ const p=old||{id:uid(),created:Date.now(),contract:id,no:recNo()};
+ Object.assign(p,{amount:a,discount:disc,date:extra?today():(v('p_date')||today()),note:extra?extra.note:v('p_note')});touch(p);
+ if(!old)S.payments.push(p);await save();toast(old?'انحفظ التعديل':'انحفظ التسديد');render();
+ if(!old&&L.waMode==='api'&&L.autoReceipt){const cu=byId('customers',c.customer);if(cu?.phone)apiSend(cu.phone,receiptMsg(p)).then(ok=>toast(ok?'انرسل الوصل للزبون':'ما انرسل الوصل'))}
+ old?contractView(id):receipt(p.id)}
+async function delPay(pid){if(!confirm('حذف التسديد؟'))return;const p=byId('payments',pid);remove('payments',pid);await save();toast('انحذف التسديد');render();contractView(p.contract)}
+async function delContract(id){if(!confirm('حذف العقد مع كل تسديداته؟'))return;const c=byId('contracts',id);
+ S.payments.filter(p=>p.contract===id).forEach(p=>remove('payments',p.id));remove('contracts',id);
+ if(c.deviceId){const d=byId('devices',c.deviceId);if(d){d.status='stock';touch(d)}}await save();closeSheet();toast('انحذف العقد');render()}
+// تسديد كامل مبكر مع خصم من الفائدة المتبقية
+function earlyForm(id){const c=byId('contracts',id),ci=info(c);const intLeft=Math.round(c.interest*ci.remaining/(c.fin||1));
+ sheet(`<h3>تسديد كامل مبكر</h3><div class="sub">الباقي ${fmt(ci.remaining)} — منها فائدة تقريباً ${fmt(intLeft)}</div>
+ <label>نسبة الخصم من الفائدة المتبقية</label><div class="chips" id="eds">${[0,25,50,75,100].map(x=>`<button class="chip ${x===50?'on':''}" onclick="edSet(${x},${intLeft},${ci.remaining})">${x}%</button>`).join('')}</div>
+ <label>مبلغ الخصم</label><input id="e_disc" inputmode="numeric" oninput="edPrev(${ci.remaining})">
+ <div class="summary" id="e_sum"></div>
+ <div class="btns"><button class="btn" onclick="saveEarly('${id}')">تسديد وإغلاق العقد</button><button class="btn sec" onclick="contractView('${id}')">رجوع</button></div>`);edSet(50,intLeft,ci.remaining)}
+function edSet(p,il,rem){markChips('eds',p);document.getElementById('e_disc').value=Math.floor(il*p/100/250)*250;edPrev(rem)}
+function edPrev(rem){const d=Math.min(num(v('e_disc')),rem);document.getElementById('e_sum').innerHTML=`<div class="row"><span>الخصم</span><span>${fmt(d)}</span></div><div class="row"><span>يدفع الزبون</span><b>${fmt(rem-d)}</b></div>`}
+function saveEarly(id){const ci=info(byId('contracts',id));const d=Math.min(num(v('e_disc')),ci.remaining);
+ savePay(id,'',{amount:ci.remaining-d,discount:d,note:'تسديد كامل مبكر'})}
+// تأجيل
+function postponeForm(id){const c=byId('contracts',id),ci=info(c);const from=ci.next?ci.next.i:1;
+ sheet(`<h3>تأجيل قسط</h3><div class="sub">القسط رقم ${from} (موعده ${ci.next?.due}) وكل اللي بعده ينزاحون</div>
+ <label>من القسط رقم</label><input id="s_from" type="number" value="${from}" min="1" max="${c.months}">
+ <label>عدد أشهر التأجيل</label><div class="chips" id="shn">${[1,2,3].map(n=>`<button class="chip ${n===1?'on':''}" onclick="document.getElementById('s_n').value=${n};markChips('shn',${n})">${n}</button>`).join('')}</div>
+ <input id="s_n" type="number" value="1" min="1"><label>السبب</label><input id="s_note">
+ <div class="btns"><button class="btn" onclick="saveShift('${id}')">تأجيل</button><button class="btn sec" onclick="contractView('${id}')">رجوع</button></div>`)}
+async function saveShift(id){const c=byId('contracts',id);const f=parseInt(v('s_from')),n=parseInt(v('s_n'));
+ if(!(f>=1&&f<=c.months&&n>=1))return toast('تأكد من الأرقام');(c.shifts=c.shifts||[]).push({from:f,n,note:v('s_note'),at:today()});touch(c);
+ await save();toast('انأجل القسط');render();contractView(id)}
+async function delShift(id,k){if(!confirm('إلغاء هذا التأجيل؟'))return;const c=byId('contracts',id);c.shifts.splice(k,1);touch(c);await save();render();contractView(id)}
+
+// ---------- الطباعة ----------
+function doPrint(html){document.getElementById('print').innerHTML=html;setTimeout(()=>print(),150)}
+function shopHead(){const s=S.settings;return `<div class="c">${esc(s.address)} ${s.phone?'• '+esc(s.phone):''}</div>`}
+function receiptData(p){const c=byId('contracts',p.contract),cu=byId('customers',c.customer)||{};
+ const before=S.payments.filter(x=>x.contract===c.id&&(x.date<p.date||(x.date===p.date&&(x.created||0)<=(p.created||0))));
+ if(!before.includes(p))before.push(p);const paidTo=before.reduce((a,x)=>a+x.amount+(x.discount||0),0);
+ return{c,cu,paidAll:paidTo+c.down,rem:Math.max(0,c.fin-paidTo),ci:info(c)}}
+function receipt(pid){const p=byId('payments',pid);const {c,cu,paidAll,rem,ci}=receiptData(p);const s=S.settings;
+ const html=`<div class="rc"><h2>${esc(s.shop||'وصل قبض')}</h2>${shopHead()}<hr>
+ <div class="row"><span>رقم الوصل</span><b dir="ltr">${p.no}</b></div><div class="row"><span>التاريخ</span><span>${p.date}</span></div>
+ <div class="row"><span>استلمنا من</span><b>${esc(cu.name)}</b></div><div class="row"><span>الجهاز</span><span>${esc(c.device)}</span></div>
+ ${c.imei?`<div class="row"><span>IMEI</span><span>${esc(c.imei)}</span></div>`:''}<hr>
+ <div class="row"><span>المبلغ المستلم</span><b>${fmt(p.amount)} د.ع</b></div>
+ ${p.discount?`<div class="row"><span>خصم تسديد مبكر</span><span>${fmt(p.discount)}</span></div>`:''}
+ <div class="row"><span>المبلغ الكامل</span><span>${fmt(c.total)}</span></div>
+ <div class="row"><span>مجموع المسدد</span><span>${fmt(paidAll)}</span></div>
+ <div class="row"><span>الباقي</span><b>${fmt(rem)} د.ع</b></div>
+ ${rem>0&&ci.next?`<div class="row"><span>القسط القادم</span><span>${ci.next.due}</span></div>`:''}${rem<=0?'<div class="c"><b>تم تسديد كامل المبلغ</b></div>':''}<hr>
+ <div class="c">توقيع المستلم: ..................</div></div>`;
+ sheet(`${html}<div class="btns"><button class="btn" onclick="doPrint(document.querySelector('.sheet .rc').outerHTML)">طباعة / حفظ PDF</button>
+ <button class="btn wa" onclick="sendReceipt('${pid}')">إرسال للزبون واتساب</button><button class="btn sec" onclick="contractView('${c.id}')">رجوع</button></div>`)}
+function receiptMsg(p){const {c,cu,paidAll,rem,ci}=receiptData(p);
+ return `وصل قبض رقم ${p.no}\nالتاريخ: ${p.date}\nاستلمنا من: ${cu.name}\nالجهاز: ${c.device}\nالمبلغ المستلم: ${fmt(p.amount)} دينار${p.discount?'\nخصم: '+fmt(p.discount):''}\nالمبلغ الكامل: ${fmt(c.total)}\nمجموع المسدد: ${fmt(paidAll)}\nالباقي: ${fmt(rem)} دينار${rem>0&&ci.next?'\nالقسط القادم: '+ci.next.due:''}\n${S.settings.shop||''}`}
+function sendReceipt(pid){const p=byId('payments',pid);const cu=byId('customers',byId('contracts',p.contract).customer);sendMsg(cu.phone,receiptMsg(p))}
+function printContract(id){const c=byId('contracts',id),ci=info(c),cu=byId('customers',c.customer)||{},s=S.settings;
+ doPrint(`<div class="a4"><h1>${esc(s.shop||'')}</h1>${shopHead()}<h2 class="c" style="margin:10px 0">عقد بيع بالتقسيط</h2>
+ <div class="row"><span>رقم العقد: <b>${cno(c)}</b></span><span>التاريخ: ${c.start}</span></div>
+ <div class="box"><b>المشتري:</b> ${esc(cu.name)} &nbsp; <b>الهاتف:</b> ${esc(cu.phone)}<br><b>العنوان:</b> ${esc(cu.address)} &nbsp; <b>العمل:</b> ${esc(cu.job)}</div>
+ <div class="box"><b>الجهاز:</b> ${esc(c.device)} ${c.imei?`&nbsp; <b>IMEI:</b> ${esc(c.imei)}`:''}</div>
+ <div class="box"><div class="row"><span>المبلغ الكامل بالتقسيط</span><b>${fmt(c.total)} دينار</b></div>
+ <div class="row"><span>المقدمة</span><span>${c.down?fmt(c.down)+' دينار':'بدون مقدمة'}</span></div>
+ <div class="row"><span>الباقي</span><span>${fmt(c.fin)} دينار على ${c.months} قسط شهري</span></div>
+ <div class="row"><span>القسط الشهري</span><b>${fmt(c.monthly)} دينار${ci.sch[0].amount!==c.monthly?` (الأول ${fmt(ci.sch[0].amount)})`:''}</b></div></div>
+ <table><tr><th>#</th><th>تاريخ الاستحقاق</th><th>المبلغ</th><th>تاريخ الدفع</th><th>توقيع المستلم</th></tr>
+ ${ci.sch.map(x=>`<tr><td>${x.i}</td><td>${x.due}</td><td>${fmt(x.amount)}</td><td></td><td></td></tr>`).join('')}</table>
+ <div class="box"><b>الشروط:</b><pre>${esc(s.terms||TERMS)}</pre></div>
+ <div class="sig"><span>توقيع البائع<br><br>..................</span><span>توقيع المشتري<br><br>..................</span></div></div>`)}
+
+// ---------- واتساب ----------
+function fill(t,c,ci){const cu=byId('customers',c.customer)||{};const rep={'{الاسم}':cu.name,'{الجهاز}':c.device,'{التاريخ}':ci.next?ci.next.due:'',
+ '{المبلغ}':fmt(ci.next?ci.next.amount-ci.next.paid:0),'{المسدد}':fmt(ci.paidAll),'{الباقي}':fmt(ci.remaining),'{المتأخر}':fmt(ci.late),'{المحل}':S.settings.shop||''};
+ for(const k in rep)t=t.split(k).join(rep[k]??'');return t}
+function openWA(phone,text){const n=normPhone(phone);if(!n)return toast('الزبون ما عنده رقم');window.open(`https://wa.me/${n}?text=${encodeURIComponent(text)}`,'_blank')}
+async function apiSend(phone,text){const n=normPhone(phone);if(!n||!L.umInstance||!L.umToken)return false;
+ const url=`https://api.ultramsg.com/${encodeURIComponent(L.umInstance)}/messages/chat`;
+ const body=new URLSearchParams({token:L.umToken,to:'+'+n,body:text});
+ try{const r=await fetch(url,{method:'POST',body});const j=await r.json().catch(()=>({}));return r.ok&&!j.error}
+ catch(e){try{await fetch(url,{method:'POST',body,mode:'no-cors'});return true}catch(e2){return false}}}
+async function sendMsg(phone,text){if(L.waMode==='api'){toast('جاري الإرسال...');const ok=await apiSend(phone,text);toast(ok?'انرسلت الرسالة':'ما انرسلت، تأكد من الإنترنت وإعدادات البوابة',3000);return ok}
+ openWA(phone,text);return true}
+const sentKey=(c,i,kind)=>kind==='late'?c.id+':late':c.id+':soon:'+(i.next?i.next.due:'');
+function dueLists(){const t=today(),d=S.settings.remindDays||3;const L2=S.contracts.map(c=>[c,info(c)]).filter(([,i])=>!i.done&&i.next);
+ return{late:L2.filter(([,i])=>i.late>0),soon:L2.filter(([,i])=>i.late<=0&&daysBetween(t,i.next.due)<=d)}}
+async function sendWA(id,kind){const c=byId('contracts',id),ci=info(c),cu=byId('customers',c.customer)||{};
+ const ok=await sendMsg(cu.phone,fill(kind==='late'?S.settings.waLate:S.settings.waRemind,c,ci));
+ if(ok){L.sent[sentKey(c,ci,kind)]=today();await saveL();if(tab==='remind')render()}}
+async function bulkSend(auto){const {late,soon}=dueLists();const jobs=[...late.map(x=>[...x,'late']),...soon.map(x=>[...x,'soon'])].filter(([c,i,k])=>{
+ if(!auto)return true;const last=L.sent[sentKey(c,i,k)];return k==='soon'?!last:(!last||daysBetween(last,today())>=3)});
+ if(!jobs.length){if(!auto)toast('ماكو رسائل');return}
+ if(!auto&&!confirm(`إرسال ${jobs.length} رسالة؟`))return;let ok=0;
+ for(const [c,i,k] of jobs){const cu=byId('customers',c.customer);if(!cu?.phone)continue;
+  if(await apiSend(cu.phone,fill(k==='late'?S.settings.waLate:S.settings.waRemind,c,i))){ok++;L.sent[sentKey(c,i,k)]=today()}await sleep(1500)}
+ await saveL();toast(`انرسلت ${ok} من ${jobs.length} رسالة تذكير`,3500);if(tab==='remind')render()}
+function statementWA(cid){const cu=byId('customers',cid);let t=`كشف حساب: ${cu.name}\nالتاريخ: ${today()}\n`;let tot=0;
+ S.contracts.filter(c=>c.customer===cid).forEach(c=>{const ci=info(c);tot+=ci.remaining;
+  t+=`\n— ${c.device} (عقد ${cno(c)})\nالمبلغ الكامل: ${fmt(c.total)}\nالمسدد: ${fmt(ci.paidAll)}\nالباقي: ${fmt(ci.remaining)}${ci.late?'\nالمتأخر: '+fmt(ci.late):''}${!ci.done&&ci.next?'\nالقسط القادم: '+ci.next.due+' بمبلغ '+fmt(ci.next.amount-ci.next.paid):''}\n`;
+  ci.pays.slice(-5).forEach(p=>t+=`  • ${p.date}: ${fmt(p.amount)}\n`)});
+ t+=`\nمجموع الباقي عليك: ${fmt(tot)} دينار\n${S.settings.shop||''}`;sendMsg(cu.phone,t)}
+
+// ---------- التقارير ----------
+function reportForm(){sheet(`<h3>التقرير الشهري</h3><label>الشهر</label><input id="r_m" type="month" value="${today().slice(0,7)}" onchange="report()"><div id="r_out"></div>
+ <div class="btns"><button class="btn" onclick="doPrint('<div class=a4>'+document.getElementById('r_out').innerHTML+'</div>')">طباعة</button><button class="btn sec" onclick="closeSheet()">إغلاق</button></div>`);report()}
+function report(){const m=v('r_m');const cs=S.contracts.filter(c=>c.start.startsWith(m));const ps=S.payments.filter(p=>p.date.startsWith(m));
+ let due=0,duePaid=0;S.contracts.forEach(c=>info(c).sch.forEach(s=>{if(s.due.startsWith(m)){due+=s.amount;duePaid+=s.paid}}));
+ const coll=ps.reduce((a,p)=>a+p.amount,0),disc=ps.reduce((a,p)=>a+(p.discount||0),0),downs=cs.reduce((a,c)=>a+c.down,0);
+ const lateNow=S.contracts.reduce((a,c)=>a+info(c).late,0);const R=(a,b,x)=>`<div class="row"><span>${a}</span>${x?'<b>'+b+'</b>':'<span>'+b+'</span>'}</div>`;
+ document.getElementById('r_out').innerHTML=`<h2>${esc(S.settings.shop||'')} — تقرير ${m}</h2><div class="card">
+ <b>المبيعات</b>${R('عدد العقود',cs.length)}${R('قيمة العقود بالتقسيط',fmt(cs.reduce((a,c)=>a+c.total,0)))}${R('قيمة الأجهزة نقداً',fmt(cs.reduce((a,c)=>a+c.price,0)))}
+ ${R('كلفة الأجهزة',fmt(cs.reduce((a,c)=>a+(c.cost||0),0)))}${R('ربح عقود هذا الشهر',fmt(cs.reduce((a,c)=>a+c.total-(c.cost||0),0)),1)}</div>
+ <div class="card"><b>الاستلام</b>${R('المقدمات',fmt(downs))}${R('الأقساط المستلمة',fmt(coll))}${R('مجموع الكاش المستلم',fmt(coll+downs),1)}${disc?R('خصومات تسديد مبكر',fmt(disc)):''}</div>
+ <div class="card"><b>التحصيل</b>${R('أقساط مستحقة هذا الشهر',fmt(due))}${R('المسدد منها',fmt(duePaid))}${R('نسبة التحصيل',due?Math.round(duePaid/due*100)+'%':'—',1)}${R('مجموع المتأخر الكلي هسه',fmt(lateNow))}</div>`}
+function rankView(){const L2=S.customers.filter(c=>S.contracts.some(x=>x.customer===c.id)).map(c=>[c,rating(c.id)]).sort((a,b)=>(a[1].k||0)-(b[1].k||0)||a[1].avg-b[1].avg);
+ sheet(`<h3>ترتيب الزبائن</h3><div class="sub">حسب معدل أيام التأخير بكل أقساطهم: ملتزم (٣ أيام أو أقل)، جيد (لحد ١٥)، يتأخر (لحد ٤٥)، متعثر (أكثر).</div><br>
+ ${L2.map(([c,r])=>`<div class="card" onclick="customerView('${c.id}')"><div class="row"><b>${esc(c.name)}</b>${c.blocked?'<span class="tag blk">قائمة سوداء</span>':rtag(r)}</div>
+ <div class="sub">${r.k?`معدل التأخير ${r.avg} يوم • أكثر تأخير ${r.max} يوم • ${r.count} قسط`:'ماكو أقساط مستحقة بعد'}</div></div>`).join('')||'<div class="empty">ماكو زبائن بعقود</div>'}`)}
+
+// ---------- الإعدادات ----------
+function settingsForm(){const s=S.settings;sheet(`<h3>معلومات المحل والرسائل</h3>
+ <label>اسم المحل</label><input id="s_shop" value="${esc(s.shop)}"><label>رقم الهاتف</label><input id="s_phone" value="${esc(s.phone)}" inputmode="tel">
+ <label>العنوان</label><input id="s_addr" value="${esc(s.address)}">
+ <label>الفائدة تنحسب على</label><select id="s_base"><option value="remaining" ${s.rateBase!=='full'?'selected':''}>الباقي بعد المقدمة</option><option value="full" ${s.rateBase==='full'?'selected':''}>سعر الجهاز الكامل</option></select>
+ <div class="grid2"><div><label>تقريب المبالغ إلى</label><select id="s_round">${[250,500,1000,5000].map(x=>`<option ${s.round==x?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div><label>التذكير قبل (أيام)</label><input id="s_days" type="number" value="${s.remindDays||3}"></div></div>
+ <label>رسالة التذكير بالموعد</label><textarea id="s_wr" rows="4">${esc(s.waRemind)}</textarea>
+ <label>رسالة المتأخرين</label><textarea id="s_wl" rows="4">${esc(s.waLate)}</textarea>
+ <div class="sub" style="margin-top:6px">الكلمات: {الاسم} {الجهاز} {التاريخ} {المبلغ} {المسدد} {الباقي} {المتأخر} {المحل}</div>
+ <label>شروط العقد المطبوع</label><textarea id="s_terms" rows="6">${esc(s.terms||TERMS)}</textarea>
+ <div class="btns"><button class="btn" onclick="saveSettings()">حفظ</button><button class="btn sec" onclick="closeSheet()">إلغاء</button></div>`)}
+async function saveSettings(){Object.assign(S.settings,{shop:v('s_shop'),phone:v('s_phone'),address:v('s_addr'),rateBase:v('s_base'),round:num(v('s_round'))||250,
+ remindDays:num(v('s_days'))||3,waRemind:v('s_wr'),waLate:v('s_wl'),terms:v('s_terms'),updated:Date.now()});await save();closeSheet();toast('انحفظت الإعدادات');render()}
+function waForm(){sheet(`<h3>بوابة الواتساب</h3>
+ <label>طريقة الإرسال</label><select id="w_mode"><option value="link" ${L.waMode!=='api'?'selected':''}>يفتح الواتساب والرسالة جاهزة (مجاني)</option><option value="api" ${L.waMode==='api'?'selected':''}>إرسال من داخل النظام عبر UltraMsg</option></select>
+ <div class="card sub" style="margin-top:10px">للإرسال من داخل النظام: سوّي حساب بموقع ultramsg.com، واربط رقم واتساب المحل بمسح الـ QR، وانسخ Instance ID والـ Token هنا. الخدمة مدفوعة شهرياً.</div>
+ <label>Instance ID</label><input id="w_inst" dir="ltr" value="${esc(L.umInstance)}" placeholder="instance12345">
+ <label>Token</label><input id="w_tok" dir="ltr" value="${esc(L.umToken)}">
+ <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="w_auto" ${L.autoSend?'checked':''}> إرسال التذكيرات تلقائياً مرة باليوم عند فتح التطبيق</label>
+ <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="w_rec" ${L.autoReceipt?'checked':''}> إرسال الوصل للزبون تلقائياً بعد كل تسديد</label>
+ <div class="btns"><button class="btn" onclick="saveWA()">حفظ</button><button class="btn sec" onclick="testWA()">إرسال تجربة لرقم المحل</button><button class="btn sec" onclick="closeSheet()">إغلاق</button></div>`)}
+async function saveWA(){Object.assign(L,{waMode:v('w_mode'),umInstance:v('w_inst'),umToken:v('w_tok'),autoSend:document.getElementById('w_auto').checked,autoReceipt:document.getElementById('w_rec').checked});
+ if(L.waMode==='api'&&(!L.umInstance||!L.umToken))return toast('اكتب Instance ID والـ Token');await saveL();closeSheet();toast('انحفظت');render()}
+async function testWA(){if(!S.settings.phone)return toast('اكتب رقم المحل بمعلومات المحل أول');
+ const inst=L.umInstance,tok=L.umToken;L.umInstance=v('w_inst');L.umToken=v('w_tok');const ok=await apiSend(S.settings.phone,'رسالة تجربة من نظام الأقساط ✓');
+ L.umInstance=inst;L.umToken=tok;toast(ok?'انرسلت، شوف واتساب المحل':'ما انرسلت، تأكد من البيانات والإنترنت',3000)}
+
+// ---------- القفل ----------
+async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('aqsat:'+s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const b64=a=>btoa(String.fromCharCode(...new Uint8Array(a))),unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+let unlockCb=null,pinBuf='';
+function showLock(cb){unlockCb=cb;pinBuf='';if(document.getElementById('lock'))return;const o=document.createElement('div');o.id='lock';
+ o.innerHTML=`<h2>${esc(S.settings.shop||'نظام الأقساط')}</h2><div>اكتب الرمز</div><div class="dots" id="dots">${'<i></i>'.repeat(4)}</div>
+ <div class="pad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pinKey('${n}')">${n}</button>`).join('')}
+ <button class="t" onclick="bioUnlock()">${L.bioId?'بصمة/وجه':''}</button><button onclick="pinKey('0')">0</button><button class="t" onclick="pinKey('x')">مسح</button></div>`;document.body.append(o)}
+async function pinKey(k){if(k==='x')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<4)pinBuf+=k;
+ document.querySelectorAll('#dots i').forEach((d,i)=>d.classList.toggle('f',i<pinBuf.length));
+ if(pinBuf.length===4){if(await sha(pinBuf)===L.pinHash)unlock();else{const d=document.getElementById('dots');d.classList.add('shake');setTimeout(()=>{d.classList.remove('shake');pinBuf='';d.querySelectorAll('i').forEach(i=>i.classList.remove('f'))},400)}}}
+function unlock(){document.getElementById('lock')?.remove();const cb=unlockCb;unlockCb=null;cb&&cb()}
+async function bioUnlock(){if(!L.bioId)return;try{await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),
+ allowCredentials:[{type:'public-key',id:unb64(L.bioId)}],userVerification:'required',timeout:60000}});unlock()}catch(e){toast('ما انفتح بالبصمة، اكتب الرمز')}}
+function lockForm(){sheet(`<h3>قفل التطبيق</h3><div class="sub">${L.pinHash?'القفل مفعّل. التطبيق يقفل إذا طلعت منه أكثر من دقيقة.':'حط رمز من ٤ أرقام حتى محد يفتح التطبيق غيرك.'}</div>
+ <label>${L.pinHash?'رمز جديد':'الرمز'} (٤ أرقام)</label><input id="l_p1" type="password" inputmode="numeric" maxlength="4">
+ <label>أعد الرمز</label><input id="l_p2" type="password" inputmode="numeric" maxlength="4">
+ <div class="btns"><button class="btn" onclick="savePin()">حفظ الرمز</button>
+ ${L.pinHash?`<button class="btn sec" onclick="setupBio()">${L.bioId?'إعادة تفعيل البصمة/الوجه':'تفعيل البصمة/الوجه'}</button><button class="btn del" onclick="removePin()">إلغاء القفل</button>`:''}
+ <button class="btn sec" onclick="closeSheet()">إغلاق</button></div>`)}
+async function savePin(){const a=num(v('l_p1'))+'',p1=v('l_p1'),p2=v('l_p2');if(!/^\d{4}$/.test(p1))return toast('الرمز لازم ٤ أرقام');if(p1!==p2)return toast('الرمزين مو متطابقين');
+ L.pinHash=await sha(p1);await saveL();toast('انحفظ الرمز');lockForm()}
+async function removePin(){showLock(async()=>{L.pinHash='';L.bioId='';await saveL();toast('انلغى القفل');closeSheet();render()})}
+async function setupBio(){try{if(!window.PublicKeyCredential)throw 0;const cr=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),
+ rp:{name:'نظام الأقساط'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'owner',displayName:'صاحب المحل'},
+ pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},timeout:60000}});
+ L.bioId=b64(cr.rawId);await saveL();toast('تفعلت البصمة/الوجه');lockForm()}catch(e){toast('هذا التلفون ما يدعم البصمة هنا، استخدم الرمز',3000)}}
+let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(L&&L.pinHash&&hiddenAt&&Date.now()-hiddenAt>60000)showLock(()=>{})});
+
+// ---------- النسخة الاحتياطية ----------
+function backupForm(){sheet(`<h3>النسخة الاحتياطية</h3><div class="sub">صدّر نسخة كل أسبوع واحفظها بالواتساب أو التليكرام. إذا تبدل التلفون، نزّل التطبيق وسوّي استيراد للملف.</div>
+ <div class="btns"><button class="btn" onclick="exportData()">تصدير نسخة</button>
+ <label class="btn sec" style="margin:0;color:var(--teal);font-size:15px">استيراد ودمج<input type="file" accept=".json,application/json" hidden onchange="importData(this,'merge')"></label>
+ <label class="btn del" style="margin:0;color:var(--late);font-size:15px">استيراد واستبدال<input type="file" accept=".json,application/json" hidden onchange="importData(this,'replace')"></label></div>
+ <div class="sub" style="margin-top:10px">الدمج يجمع بيانات الملف ويا بيانات هذا التلفون (الأحدث يغلب). الاستبدال يمسح بيانات هذا التلفون ويحط النسخة بدالها.</div>`)}
+async function exportData(){const images={};for(const c of S.customers)for(const k of ['idF','idB'])if(c[k]){const d=await imgGet(c[k]);if(d)images[c[k]]=d}
+ const data=JSON.stringify({app:'aqsat',v:2,exported:new Date().toISOString(),data:S,images});
+ const name=`aqsat-backup-${today()}.json`;const file=new File([data],name,{type:'application/json'});let done=false;
+ if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:name});done=true}catch(e){if(e.name==='AbortError')return}}
+ if(!done){const a=document.createElement('a');a.href=URL.createObjectURL(file);a.download=name;a.click()}
+ L.lastBackup=Date.now();await saveL();toast('انحفظت النسخة');if(tab==='home')render()}
+async function importData(inp,mode){const f=inp.files[0];inp.value='';if(!f)return;let J;
+ try{J=JSON.parse(await f.text())}catch{return toast('الملف مو نسخة صحيحة')}
+ if(J.app!=='aqsat'||!J.data)return toast('الملف مو نسخة من نظام الأقساط');
+ if(mode==='replace'&&!confirm('راح تنمسح بيانات هذا التلفون وتنحط النسخة بدالها. متأكد؟'))return;
+ for(const id in (J.images||{}))await imgPut(id,J.images[id]);
+ if(mode==='replace'){S=Object.assign(EMPTY(),J.data);S.settings=Object.assign(EMPTY().settings,J.data.settings||{})}else mergeInto(S,J.data);
+ await save();closeSheet();toast(mode==='replace'?'انستبدلت البيانات':'اندمجت البيانات');render()}
+function mergeInto(A,B){const all=[...(A.deleted||[]),...(B.deleted||[])];const del=new Set(all.map(d=>d.t+':'+d.id));
+ const seen=new Set();A.deleted=all.filter(d=>{const k=d.t+':'+d.id;if(seen.has(k))return false;seen.add(k);return true});
+ for(const t of ['customers','devices','contracts','payments']){const m=new Map(A[t].map(x=>[x.id,x]));
+  (B[t]||[]).forEach(x=>{const o=m.get(x.id);if(!o||(x.updated||0)>(o.updated||0))m.set(x.id,x)});A[t]=[...m.values()].filter(x=>!del.has(t+':'+x.id))}
+ if((B.settings?.updated||0)>(A.settings.updated||0))A.settings=Object.assign(A.settings,B.settings)}
+
+// ================== تشغيل ==================
+async function afterUnlock(){render();if(L.waMode==='api'&&L.autoSend&&L.lastAuto!==today()&&navigator.onLine){L.lastAuto=today();await saveL();bulkSend(true)}}
+(async()=>{db=await idb();S=await tx('kv','readonly',s=>s.get('state'))||EMPTY();L=Object.assign(LOCAL(),await tx('kv','readonly',s=>s.get('local'))||{});
+ S=Object.assign(EMPTY(),S);S.settings=Object.assign(EMPTY().settings,S.settings);
+ if(navigator.storage?.persist)navigator.storage.persist();
+ if(L.pinHash)showLock(afterUnlock);else afterUnlock();
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
+</script>
+</body>
+</html>
