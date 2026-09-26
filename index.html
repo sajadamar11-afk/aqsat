@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#0F4C5C">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="الأقساط">
+<meta name="apple-mobile-web-app-title" content="حسين علي">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
-<title>نظام الأقساط</title>
+<title>حسين علي</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -97,7 +97,7 @@ th{color:var(--muted);font-weight:500}
 </style>
 </head>
 <body>
-<header><h1>نظام الأقساط</h1><small id="shopname"></small></header>
+<header><h1 id="shopname">حسين علي</h1><small>نظام الأقساط</small></header>
 <main id="app"></main>
 <button class="fab" id="fab">+</button>
 <nav id="nav"></nav>
@@ -107,7 +107,7 @@ th{color:var(--muted);font-weight:500}
 let db,S,L;
 const TERMS='1. يلتزم المشتري بتسديد الأقساط في مواعيدها المحددة أعلاه.\n2. يقر المشتري باستلام الجهاز سليماً وخالياً من العيوب.\n3. في حال التأخر عن تسديد قسطين متتاليين يحق للبائع المطالبة بكامل المبلغ المتبقي.\n4. لا يحق للمشتري بيع الجهاز أو رهنه قبل تسديد كامل المبلغ.';
 const EMPTY=()=>({customers:[],devices:[],contracts:[],payments:[],deleted:[],
- settings:{shop:'',phone:'',address:'',rateBase:'remaining',round:250,remindDays:3,terms:TERMS,
+ settings:{shop:'حسين علي',phone:'',address:'',rateBase:'remaining',round:250,remindDays:3,terms:TERMS,
  waRemind:'السلام عليكم {الاسم}، نذكركم بموعد قسط جهاز {الجهاز} بتاريخ {التاريخ} بمبلغ {المبلغ} دينار. المسدد: {المسدد} - الباقي: {الباقي}. {المحل}',
  waLate:'السلام عليكم {الاسم}، عليكم قسط متأخر بمبلغ {المتأخر} دينار لجهاز {الجهاز}. الباقي الكلي: {الباقي} دينار. نرجو المراجعة. {المحل}'}});
 // إعدادات خاصة بهذا التلفون فقط (ما تنصدر بالنسخة)
@@ -183,7 +183,7 @@ let tab='home',filter='all',q='';
 function renderNav(){document.getElementById('nav').innerHTML=TABS.map(([k,n,i])=>
  `<button class="${tab===k?'on':''}" onclick="go('${k}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">${IC[i]}</svg>${n}</button>`).join('')}
 function go(t){tab=t;q='';filter='all';render();scrollTo(0,0)}
-function render(){renderNav();document.getElementById('shopname').textContent=S.settings.shop||'';
+function render(){renderNav();document.getElementById('shopname').textContent=S.settings.shop||'حسين علي';
  const fab=document.getElementById('fab');fab.style.display=['contracts','customers','stock','home'].includes(tab)?'':'none';
  fab.onclick=tab==='customers'?()=>customerForm():tab==='stock'?()=>deviceForm():()=>contractForm();
  document.getElementById('app').innerHTML=VIEWS[tab]()}
@@ -561,7 +561,7 @@ function waForm(){sheet(`<h3>بوابة الواتساب</h3>
 async function saveWA(){Object.assign(L,{waMode:v('w_mode'),umInstance:v('w_inst'),umToken:v('w_tok'),autoSend:document.getElementById('w_auto').checked,autoReceipt:document.getElementById('w_rec').checked});
  if(L.waMode==='api'&&(!L.umInstance||!L.umToken))return toast('اكتب Instance ID والـ Token');await saveL();closeSheet();toast('انحفظت');render()}
 async function testWA(){if(!S.settings.phone)return toast('اكتب رقم المحل بمعلومات المحل أول');
- const inst=L.umInstance,tok=L.umToken;L.umInstance=v('w_inst');L.umToken=v('w_tok');const ok=await apiSend(S.settings.phone,'رسالة تجربة من نظام الأقساط ✓');
+ const inst=L.umInstance,tok=L.umToken;L.umInstance=v('w_inst');L.umToken=v('w_tok');const ok=await apiSend(S.settings.phone,'رسالة تجربة من حسين علي ✓');
  L.umInstance=inst;L.umToken=tok;toast(ok?'انرسلت، شوف واتساب المحل':'ما انرسلت، تأكد من البيانات والإنترنت',3000)}
 
 // ---------- القفل ----------
@@ -569,7 +569,7 @@ async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncod
 const b64=a=>btoa(String.fromCharCode(...new Uint8Array(a))),unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 let unlockCb=null,pinBuf='';
 function showLock(cb){unlockCb=cb;pinBuf='';if(document.getElementById('lock'))return;const o=document.createElement('div');o.id='lock';
- o.innerHTML=`<h2>${esc(S.settings.shop||'نظام الأقساط')}</h2><div>اكتب الرمز</div><div class="dots" id="dots">${'<i></i>'.repeat(4)}</div>
+ o.innerHTML=`<h2>${esc(S.settings.shop||'حسين علي')}</h2><div>اكتب الرمز</div><div class="dots" id="dots">${'<i></i>'.repeat(4)}</div>
  <div class="pad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button onclick="pinKey('${n}')">${n}</button>`).join('')}
  <button class="t" onclick="bioUnlock()">${L.bioId?'بصمة/وجه':''}</button><button onclick="pinKey('0')">0</button><button class="t" onclick="pinKey('x')">مسح</button></div>`;document.body.append(o)}
 async function pinKey(k){if(k==='x')pinBuf=pinBuf.slice(0,-1);else if(pinBuf.length<4)pinBuf+=k;
@@ -588,7 +588,7 @@ async function savePin(){const a=num(v('l_p1'))+'',p1=v('l_p1'),p2=v('l_p2');if(
  L.pinHash=await sha(p1);await saveL();toast('انحفظ الرمز');lockForm()}
 async function removePin(){showLock(async()=>{L.pinHash='';L.bioId='';await saveL();toast('انلغى القفل');closeSheet();render()})}
 async function setupBio(){try{if(!window.PublicKeyCredential)throw 0;const cr=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),
- rp:{name:'نظام الأقساط'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'owner',displayName:'صاحب المحل'},
+ rp:{name:'حسين علي'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'owner',displayName:'صاحب المحل'},
  pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},timeout:60000}});
  L.bioId=b64(cr.rawId);await saveL();toast('تفعلت البصمة/الوجه');lockForm()}catch(e){toast('هذا التلفون ما يدعم البصمة هنا، استخدم الرمز',3000)}}
 let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(L&&L.pinHash&&hiddenAt&&Date.now()-hiddenAt>60000)showLock(()=>{})});
@@ -607,7 +607,7 @@ async function exportData(){const images={};for(const c of S.customers)for(const
  L.lastBackup=Date.now();await saveL();toast('انحفظت النسخة');if(tab==='home')render()}
 async function importData(inp,mode){const f=inp.files[0];inp.value='';if(!f)return;let J;
  try{J=JSON.parse(await f.text())}catch{return toast('الملف مو نسخة صحيحة')}
- if(J.app!=='aqsat'||!J.data)return toast('الملف مو نسخة من نظام الأقساط');
+ if(J.app!=='aqsat'||!J.data)return toast('الملف مو نسخة من حسين علي');
  if(mode==='replace'&&!confirm('راح تنمسح بيانات هذا التلفون وتنحط النسخة بدالها. متأكد؟'))return;
  for(const id in (J.images||{}))await imgPut(id,J.images[id]);
  if(mode==='replace'){S=Object.assign(EMPTY(),J.data);S.settings=Object.assign(EMPTY().settings,J.data.settings||{})}else mergeInto(S,J.data);
@@ -621,7 +621,7 @@ function mergeInto(A,B){const all=[...(A.deleted||[]),...(B.deleted||[])];const 
 // ================== تشغيل ==================
 async function afterUnlock(){render();if(L.waMode==='api'&&L.autoSend&&L.lastAuto!==today()&&navigator.onLine){L.lastAuto=today();await saveL();bulkSend(true)}}
 (async()=>{db=await idb();S=await tx('kv','readonly',s=>s.get('state'))||EMPTY();L=Object.assign(LOCAL(),await tx('kv','readonly',s=>s.get('local'))||{});
- S=Object.assign(EMPTY(),S);S.settings=Object.assign(EMPTY().settings,S.settings);
+ S=Object.assign(EMPTY(),S);S.settings=Object.assign(EMPTY().settings,S.settings);if(!S.settings.shop)S.settings.shop='حسين علي';
  if(navigator.storage?.persist)navigator.storage.persist();
  if(L.pinHash)showLock(afterUnlock);else afterUnlock();
  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
